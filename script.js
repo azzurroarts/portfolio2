@@ -1,3 +1,4 @@
+let observer; 
 const csvFile = 'art.csv';
 let artData = [];
 let currentCategory = 'All';
@@ -24,6 +25,22 @@ overlay.addEventListener('click', () => {
 window.addEventListener('DOMContentLoaded', init);
 
 function init() {
+  zoomImg.src = img.dataset.full;
+  observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const img = entry.target;
+
+      if (img.dataset.src) {
+        img.src = img.dataset.src;
+        img.removeAttribute('data-src');
+      }
+
+      observer.unobserve(img);
+    }
+  });
+});
+  
   fetch(csvFile)
     .then(response => response.text())
     .then(text => {
@@ -67,6 +84,7 @@ function renderCategories() {
     btn.addEventListener('click', () => {
       currentCategory = cat;
       renderCategories(); // update highlight
+      
       renderGallery(cat);
     });
     catContainer.appendChild(btn);
@@ -83,7 +101,9 @@ function renderGallery(filter, searchQuery = '') {
     .filter(a => a.Title.toLowerCase().includes(searchQuery))
     .forEach(a => {
       const img = document.createElement('img');
-      img.src = a.URL;
+    img.src = `images/${a.FileName}`;
+img.dataset.full = `images/${a.FileName}`;
+img.loading = "lazy";
       img.alt = a.Title;
       img.style.height = '450px';
       img.style.width = 'auto';
