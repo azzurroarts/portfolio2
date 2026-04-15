@@ -61,19 +61,21 @@ function init() {
   });
 }
 
-function csvToArray(str, delimiter = ',') {
-  const lines = str.trim().split('\n').map(line => line.replace('\r', ''));
+function csvToArray(str) {
+  const lines = str.trim().split('\n');
 
-  const headers = lines[0].split(delimiter).map(h => h.trim());
+  const headers = lines[0].split(',').map(h => h.trim());
 
   return lines.slice(1).map(line => {
-    const values = line.split(delimiter).map(v => v.trim());
-    let obj = {};
-    headers.forEach((header, i) => obj[header] = values[i]);
-    return obj;
+    const cleanLine = line.replace('\r', '');
+    const values = cleanLine.split(',').map(v => v.trim());
+
+    return {
+      FileName: values[0],
+      Category: values[1],
+      Title: values[2]
+    };
   });
-}
-}
 }
 
 // Render categories & active highlight
