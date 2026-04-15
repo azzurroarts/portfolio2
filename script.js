@@ -28,7 +28,7 @@ overlay.addEventListener('click', () => {
   setTimeout(() => overlay.innerHTML = '', 350);
 });
 
-// ---------------- LAZY LOADER ----------------
+// ---------------- OBSERVER (LAZY LOAD) ----------------
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (!entry.isIntersecting) return;
@@ -43,7 +43,7 @@ const observer = new IntersectionObserver((entries) => {
     observer.unobserve(img);
   });
 }, {
-  rootMargin: '200px'
+  rootMargin: '150px'
 });
 
 // ---------------- INIT ----------------
@@ -68,14 +68,14 @@ function init() {
   });
 }
 
-// ---------------- CSV PARSER ----------------
+// ---------------- CSV ----------------
 function csvToArray(str) {
   const lines = str.trim().split('\n');
   const headers = lines[0].split(',').map(h => h.trim());
 
   return lines.slice(1).map(line => {
-    const cleanLine = line.replace('\r', '');
-    const values = cleanLine.split(',').map(v => v.trim());
+    const clean = line.replace('\r', '');
+    const values = clean.split(',').map(v => v.trim());
 
     return {
       FileName: values[0],
@@ -122,16 +122,12 @@ function renderGallery(filter, searchQuery = '') {
 
     const src = `images/${a.FileName}`;
 
-    // lazy load setup
     img.dataset.src = src;
     img.dataset.full = src;
     img.alt = a.Title;
     img.loading = 'lazy';
 
-    img.style.height = '450px';
-    img.style.width = 'auto';
-    img.style.cursor = 'pointer';
-    img.style.transition = 'transform 0.25s ease';
+    img.classList.add('gallery-img');
 
     observer.observe(img);
 
