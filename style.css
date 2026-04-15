@@ -235,3 +235,10 @@ body {
 .gallery-img:hover {
   transform: scale(1.05);
 }
+#sidebar-logo {
+  width: 100%;
+  max-width: 140px;
+  height: auto;
+  margin-bottom: 12px;
+  display: block;
+}
