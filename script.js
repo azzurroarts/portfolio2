@@ -132,8 +132,10 @@ function renderGallery(filter, searchQuery = '') {
     observer.observe(img);
 
     img.addEventListener('click', () => {
-      currentCategory = a.Category;
-      renderCategories();
+    floatingCategory.innerHTML = `
+  <span style="font-weight:700">${a.Category}</span>
+  <span style="opacity:0.7; margin-left:8px;">${a.Year || ''}</span>
+`;
 
       floatingCategory.textContent = a.Category;
       floatingCategory.style.opacity = 1;
