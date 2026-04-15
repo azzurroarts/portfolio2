@@ -6,7 +6,7 @@ body {
   color: #000;
   display: flex;
   height: 100vh;
-  overflow: hidden;
+  overflow: hidden; /* allows internal scrolling */
 }
 
 /* ---------------- SIDEBAR ---------------- */
@@ -25,7 +25,7 @@ body {
 .sidebar-title {
   font-weight: bold;
   font-size: 14px;
-  color: #888;
+  color: #888; 
   margin-bottom: 6px;
   text-transform: uppercase;
 }
@@ -77,43 +77,39 @@ body {
   padding-left: 4px;
 }
 
-/* ---------------- MAIN LAYOUT ---------------- */
+/* ---------------- MAIN GALLERY ---------------- */
 #main {
   flex: 1;
+  display: flex;
   overflow: hidden;
 }
+
+/* Desktop gallery images */
+@media (min-width: 769px) {
+  #gallery img {
+    height: 360px;
+    width: auto;
+    object-fit: cover;
+    cursor: pointer;
+    transition: transform 0.25s ease;
+  }
+}
+
+/* Gallery container */
 #gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 16px;
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
   padding: 20px;
+  gap: 24px;
   overflow-y: auto;
+  align-content: flex-start;
+  box-sizing: border-box;
 }
 
-/* images */
-.gallery-img {
-  width: 100%;
-  height: auto;
-  object-fit: contain;
-  cursor: pointer;
+#gallery img:hover {
+  transform: scale(1.05);
   transition: transform 0.25s ease;
-}
-
-.gallery-img:hover {
-  transform: scale(1.03);
-}
-
-/* ---------------- RESPONSIVE MASONRY ---------------- */
-@media (max-width: 1000px) {
-  #gallery { column-count: 3; }
-}
-
-@media (max-width: 700px) {
-  #gallery { column-count: 2; }
-}
-
-@media (max-width: 450px) {
-  #gallery { column-count: 1; }
 }
 
 /* ---------------- FULLSCREEN OVERLAY ---------------- */
@@ -140,9 +136,12 @@ body {
   max-width: 90%;
   max-height: 90%;
   object-fit: contain;
+  box-shadow: 0 0 40px rgba(0,0,0,0.5);
+  transition: transform 0.35s ease;
+  will-change: transform;
 }
 
-/* ---------------- FLOATING CATEGORY ---------------- */
+/* ---------------- FLOATING CATEGORY LABEL ---------------- */
 #floating-category {
   position: fixed;
   bottom: 20px;
@@ -160,16 +159,7 @@ body {
   z-index: 10000;
 }
 
-/* ---------------- SIDEBAR LOGO ---------------- */
-#sidebar-logo {
-  width: 100%;
-  max-width: 140px;
-  height: auto;
-  margin-bottom: 12px;
-  display: block;
-}
-
-/* ---------------- MOBILE ---------------- */
+/* ---------------- MOBILE RESPONSIVE ---------------- */
 @media (max-width: 768px) {
   body {
     flex-direction: column;
@@ -180,25 +170,68 @@ body {
     border-right: none;
     border-bottom: 2px solid #000;
     padding: 12px;
+    overflow-x: auto;
+    overflow-y: visible;
+    flex-direction: column;
   }
 
   #categories {
     display: flex;
     gap: 12px;
     overflow-x: auto;
+    flex-wrap: nowrap;
   }
 
   #categories button {
     flex-shrink: 0;
+    white-space: nowrap;
     font-size: 14px;
+    margin-bottom: 0;
   }
 
   #search-container {
     margin-bottom: 10px;
   }
 
+  #main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
   #gallery {
     padding: 12px;
-    column-gap: 12px;
+    gap: 12px;
+    overflow-y: auto;
+    height: calc(100vh - 120px);
   }
+
+  #gallery img {
+  width: 100%;
+  height: auto;
+  max-height: 70vh; /* keeps them from getting absurdly tall */
+}
+
+}
+#gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+  padding: 20px;
+  overflow-y: auto;
+  align-content: start;
+}
+
+.gallery-img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: transform 0.25s ease;
+}
+
+.gallery-img:hover {
+  transform: scale(1.05);
 }
