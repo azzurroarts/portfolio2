@@ -85,32 +85,48 @@ body {
 }
 
 /* Desktop gallery images */
-@media (min-width: 769px) {
-  #gallery img {
-    height: 360px;
-    width: auto;
-    object-fit: cover;
-    cursor: pointer;
-    transition: transform 0.25s ease;
+/* ---------------- MAIN GALLERY (MASONRY) ---------------- */
+#gallery {
+  column-count: 4;
+  column-gap: 16px;
+  padding: 20px;
+  overflow-y: auto;
+  align-content: start;
+}
+
+/* ---------------- IMAGES ---------------- */
+.gallery-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin-bottom: 16px;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: transform 0.25s ease;
+  break-inside: avoid;
+}
+
+.gallery-img:hover {
+  transform: scale(0.8);
+}
+@media (max-width: 1000px) {
+  #gallery {
+    column-count: 3;
   }
 }
 
-/* Gallery container */
-#gallery {
-  flex: 1;
-  display: flex;
-  flex-wrap: wrap;
-  padding: 20px;
-  gap: 24px;
-  overflow-y: auto;
-  align-content: flex-start;
-  box-sizing: border-box;
+@media (max-width: 700px) {
+  #gallery {
+    column-count: 2;
+  }
 }
 
-#gallery img:hover {
-  transform: scale(1.05);
-  transition: transform 0.25s ease;
+@media (max-width: 450px) {
+  #gallery {
+    column-count: 1;
+  }
 }
+
 
 /* ---------------- FULLSCREEN OVERLAY ---------------- */
 .fullscreen-overlay {
