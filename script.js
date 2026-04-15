@@ -2,6 +2,33 @@ const csvFile = 'art.csv';
 
 let artData = [];
 let currentCategory = 'All';
+function layoutMasonry() {
+  const gallery = document.getElementById("gallery");
+  const items = Array.from(gallery.querySelectorAll(".gallery-img"));
+
+  const gap = 16;
+  const containerWidth = gallery.clientWidth;
+  const columnWidth = 240;
+
+  const columns = Math.floor(containerWidth / (columnWidth + gap)) || 1;
+
+  let colHeights = new Array(columns).fill(0);
+
+  items.forEach(img => {
+    const shortestCol = colHeights.indexOf(Math.min(...colHeights));
+
+    const x = shortestCol * (columnWidth + gap);
+    const y = colHeights[shortestCol];
+
+    img.style.position = "absolute";
+    img.style.transform = `translate(${x}px, ${y}px)`;
+
+    colHeights[shortestCol] += img.offsetHeight + gap;
+  });
+
+  gallery.style.position = "relative";
+  gallery.style.height = Math.max(...colHeights) + "px";
+}
 
 // ---------------- OVERLAY ----------------
 const overlay = document.createElement('div');
@@ -165,5 +192,7 @@ function renderGallery(filter, searchQuery = '') {
     });
 
     gallery.appendChild(img);
+    setTimeout(layoutMasonry, 100);
   });
 }
+window.addEventListener("resize", layoutMasonry);
