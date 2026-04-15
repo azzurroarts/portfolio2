@@ -126,7 +126,7 @@ img.loading = "lazy";
         floatingCategory.style.opacity = 1;
 
         const zoomImg = document.createElement('img');
-        zoomImg.src = img.src;
+        zoomImg.src = img.dataset.full;
 
         const rect = img.getBoundingClientRect();
         zoomImg.dataset.originalRect = JSON.stringify(rect);
