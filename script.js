@@ -1,4 +1,3 @@
-let observer; 
 const csvFile = 'art.csv';
 let artData = [];
 let currentCategory = 'All';
@@ -13,45 +12,34 @@ const floatingCategory = document.getElementById('floating-category');
 overlay.addEventListener('click', () => {
   overlay.classList.remove('active');
   floatingCategory.style.opacity = 0;
+
   const img = overlay.querySelector('img');
   if (!img) return;
+
   const rect = img.dataset.originalRect && JSON.parse(img.dataset.originalRect);
+
   if (rect) {
-    img.style.transform = `translate(${rect.left}px, ${rect.top}px) scale(${rect.width / img.naturalWidth}, ${rect.height / img.naturalHeight})`;
+    img.style.transform =
+      `translate(${rect.left}px, ${rect.top}px)
+       scale(${rect.width / img.naturalWidth}, ${rect.height / img.naturalHeight})`;
   }
+
   setTimeout(() => overlay.innerHTML = '', 350);
 });
 
 window.addEventListener('DOMContentLoaded', init);
 
 function init() {
-  observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      const img = entry.target;
-
-      if (img.dataset.src) {
-        img.src = img.dataset.src;
-        img.removeAttribute('data-src');
-      }
-
-      observer.unobserve(img);
-    }
-  });
-});
-  
   fetch(csvFile)
     .then(response => response.text())
     .then(text => {
-  console.log("RAW CSV TEXT:", text);
+      artData = csvToArray(text);
 
-  artData = csvToArray(text);
+      console.log("PARSED DATA:", artData);
 
-  console.log("PARSED DATA:", artData);
-
-  renderCategories();
-  renderGallery('All');
-})
+      renderCategories();
+      renderGallery('All');
+    })
     .catch(err => console.error('Error loading CSV:', err));
 
   const searchInput = document.getElementById('search');
@@ -78,9 +66,10 @@ function csvToArray(str) {
   });
 }
 
-// Render categories & active highlight
+// Render categories
 function renderCategories() {
   const categories = ['All', ...new Set(artData.map(a => a.Category))];
+
   const catContainer = document.getElementById('categories');
   catContainer.innerHTML = '';
 
@@ -88,15 +77,14 @@ function renderCategories() {
     const btn = document.createElement('button');
     btn.textContent = cat;
 
-    // highlight active category
     if (cat === currentCategory) btn.classList.add('active');
 
     btn.addEventListener('click', () => {
       currentCategory = cat;
-      renderCategories(); // update highlight
-      
+      renderCategories();
       renderGallery(cat);
     });
+
     catContainer.appendChild(btn);
   });
 }
@@ -108,13 +96,18 @@ function renderGallery(filter, searchQuery = '') {
 
   artData
     .filter(a => filter === 'All' || a.Category === filter)
-    .filter(a => a.Title.toLowerCase().includes(searchQuery))
+    .filter(a => (a.Title || '').toLowerCase().includes(searchQuery))
     .forEach(a => {
+
       const img = document.createElement('img');
-    img.src = `images/${a.FileName}`;
-img.dataset.full = `images/${a.FileName}`;
-img.loading = "lazy";
+
+      const src = `images/${a.FileName}`;
+
+      img.src = src;
+      img.dataset.full = src;
       img.alt = a.Title;
+      img.loading = "lazy";
+
       img.style.height = '450px';
       img.style.width = 'auto';
       img.style.cursor = 'pointer';
@@ -122,9 +115,8 @@ img.loading = "lazy";
 
       img.addEventListener('click', () => {
         currentCategory = a.Category;
-        renderCategories(); // highlight category
+        renderCategories();
 
-        // Show floating category label
         floatingCategory.textContent = a.Category;
         floatingCategory.style.opacity = 1;
 
@@ -139,7 +131,6 @@ img.loading = "lazy";
         zoomImg.style.top = rect.top + 'px';
         zoomImg.style.width = rect.width + 'px';
         zoomImg.style.height = rect.height + 'px';
-        zoomImg.style.transform = 'none';
         zoomImg.style.transition = 'all 0.35s ease';
 
         overlay.innerHTML = '';
