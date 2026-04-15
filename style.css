@@ -82,24 +82,21 @@ body {
   flex: 1;
   overflow: hidden;
 }
-
-/* ---------------- MASONRY GALLERY ---------------- */
 #gallery {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
   padding: 20px;
+  overflow-y: auto;
 }
 
-/* ---------------- IMAGES ---------------- */
+/* images */
 .gallery-img {
-  position: absolute;
-  width: 240px;
+  width: 100%;
   height: auto;
+  object-fit: contain;
   cursor: pointer;
   transition: transform 0.25s ease;
-  will-change: transform;
 }
 
 .gallery-img:hover {
