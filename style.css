@@ -85,22 +85,21 @@ body {
 
 /* ---------------- MASONRY GALLERY ---------------- */
 #gallery {
-  column-count: 4;
-  column-gap: 16px;
-  padding: 20px;
+  position: relative;
+  width: 100%;
+  height: 100%;
   overflow-y: auto;
+  padding: 20px;
 }
 
 /* ---------------- IMAGES ---------------- */
 .gallery-img {
-  width: 100%;
+  position: absolute;
+  width: 240px;
   height: auto;
-  display: block;
-  margin-bottom: 16px;
   cursor: pointer;
-  border-radius: 2px;
   transition: transform 0.25s ease;
-  break-inside: avoid;
+  will-change: transform;
 }
 
 .gallery-img:hover {
