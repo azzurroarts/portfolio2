@@ -44,10 +44,15 @@ function init() {
   fetch(csvFile)
     .then(response => response.text())
     .then(text => {
-      artData = csvToArray(text);
-      renderCategories();
-      renderGallery('All');
-    })
+  console.log("RAW CSV TEXT:", text);
+
+  artData = csvToArray(text);
+
+  console.log("PARSED DATA:", artData);
+
+  renderCategories();
+  renderGallery('All');
+})
     .catch(err => console.error('Error loading CSV:', err));
 
   const searchInput = document.getElementById('search');
