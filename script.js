@@ -62,7 +62,7 @@ function init() {
 }
 
 function csvToArray(str, delimiter = ',') {
-  const lines = str.trim().split(/\r?\n/); // ✅ handles both \n and \r\n
+  const lines = str.trim().split('\n').map(line => line.replace('\r', ''));
 
   const headers = lines[0].split(delimiter).map(h => h.trim());
 
@@ -72,6 +72,7 @@ function csvToArray(str, delimiter = ',') {
     headers.forEach((header, i) => obj[header] = values[i]);
     return obj;
   });
+}
 }
 }
 
