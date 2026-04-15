@@ -1,8 +1,9 @@
 const csvFile = 'art.csv';
+
 let artData = [];
 let currentCategory = 'All';
 
-// Fullscreen overlay
+// ---------------- OVERLAY ----------------
 const overlay = document.createElement('div');
 overlay.className = 'fullscreen-overlay';
 document.body.appendChild(overlay);
@@ -27,31 +28,49 @@ overlay.addEventListener('click', () => {
   setTimeout(() => overlay.innerHTML = '', 350);
 });
 
+// ---------------- LAZY LOADER ----------------
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+
+    const img = entry.target;
+
+    if (img.dataset.src) {
+      img.src = img.dataset.src;
+      img.removeAttribute('data-src');
+    }
+
+    observer.unobserve(img);
+  });
+}, {
+  rootMargin: '200px'
+});
+
+// ---------------- INIT ----------------
 window.addEventListener('DOMContentLoaded', init);
 
 function init() {
   fetch(csvFile)
-    .then(response => response.text())
+    .then(r => r.text())
     .then(text => {
       artData = csvToArray(text);
-
-      console.log("PARSED DATA:", artData);
 
       renderCategories();
       renderGallery('All');
     })
-    .catch(err => console.error('Error loading CSV:', err));
+    .catch(err => console.error('CSV load error:', err));
 
   const searchInput = document.getElementById('search');
-  searchInput.addEventListener('input', () => {
-    const query = searchInput.value.trim().toLowerCase();
-    renderGallery('All', query);
+
+  searchInput.addEventListener('input', (e) => {
+    const query = e.target.value.trim().toLowerCase();
+    renderGallery(currentCategory, query);
   });
 }
 
+// ---------------- CSV PARSER ----------------
 function csvToArray(str) {
   const lines = str.trim().split('\n');
-
   const headers = lines[0].split(',').map(h => h.trim());
 
   return lines.slice(1).map(line => {
@@ -66,12 +85,12 @@ function csvToArray(str) {
   });
 }
 
-// Render categories
+// ---------------- CATEGORIES ----------------
 function renderCategories() {
   const categories = ['All', ...new Set(artData.map(a => a.Category))];
 
-  const catContainer = document.getElementById('categories');
-  catContainer.innerHTML = '';
+  const container = document.getElementById('categories');
+  container.innerHTML = '';
 
   categories.forEach(cat => {
     const btn = document.createElement('button');
@@ -85,67 +104,70 @@ function renderCategories() {
       renderGallery(cat);
     });
 
-    catContainer.appendChild(btn);
+    container.appendChild(btn);
   });
 }
 
-// Render gallery
+// ---------------- GALLERY ----------------
 function renderGallery(filter, searchQuery = '') {
   const gallery = document.getElementById('gallery');
   gallery.innerHTML = '';
 
-  artData
+  const filtered = artData
     .filter(a => filter === 'All' || a.Category === filter)
-    .filter(a => (a.Title || '').toLowerCase().includes(searchQuery))
-    .forEach(a => {
+    .filter(a => (a.Title || '').toLowerCase().includes(searchQuery));
 
-      const img = document.createElement('img');
+  filtered.forEach(a => {
+    const img = document.createElement('img');
 
-      const src = `images/${a.FileName}`;
+    const src = `images/${a.FileName}`;
 
-      img.src = src;
-      img.dataset.full = src;
-      img.alt = a.Title;
-      img.loading = "lazy";
+    // lazy load setup
+    img.dataset.src = src;
+    img.dataset.full = src;
+    img.alt = a.Title;
+    img.loading = 'lazy';
 
-      img.style.height = '450px';
-      img.style.width = 'auto';
-      img.style.cursor = 'pointer';
-      img.style.transition = 'transform 0.25s ease';
+    img.style.height = '450px';
+    img.style.width = 'auto';
+    img.style.cursor = 'pointer';
+    img.style.transition = 'transform 0.25s ease';
 
-      img.addEventListener('click', () => {
-        currentCategory = a.Category;
-        renderCategories();
+    observer.observe(img);
 
-        floatingCategory.textContent = a.Category;
-        floatingCategory.style.opacity = 1;
+    img.addEventListener('click', () => {
+      currentCategory = a.Category;
+      renderCategories();
 
-        const zoomImg = document.createElement('img');
-        zoomImg.src = img.dataset.full;
+      floatingCategory.textContent = a.Category;
+      floatingCategory.style.opacity = 1;
 
-        const rect = img.getBoundingClientRect();
-        zoomImg.dataset.originalRect = JSON.stringify(rect);
+      const zoomImg = document.createElement('img');
+      zoomImg.src = img.dataset.full;
 
-        zoomImg.style.position = 'fixed';
-        zoomImg.style.left = rect.left + 'px';
-        zoomImg.style.top = rect.top + 'px';
-        zoomImg.style.width = rect.width + 'px';
-        zoomImg.style.height = rect.height + 'px';
-        zoomImg.style.transition = 'all 0.35s ease';
+      const rect = img.getBoundingClientRect();
+      zoomImg.dataset.originalRect = JSON.stringify(rect);
 
-        overlay.innerHTML = '';
-        overlay.appendChild(zoomImg);
-        overlay.classList.add('active');
+      zoomImg.style.position = 'fixed';
+      zoomImg.style.left = rect.left + 'px';
+      zoomImg.style.top = rect.top + 'px';
+      zoomImg.style.width = rect.width + 'px';
+      zoomImg.style.height = rect.height + 'px';
+      zoomImg.style.transition = 'all 0.35s ease';
 
-        requestAnimationFrame(() => {
-          zoomImg.style.left = '50%';
-          zoomImg.style.top = '50%';
-          zoomImg.style.transform = 'translate(-50%, -50%) scale(1)';
-          zoomImg.style.width = '';
-          zoomImg.style.height = '';
-        });
+      overlay.innerHTML = '';
+      overlay.appendChild(zoomImg);
+      overlay.classList.add('active');
+
+      requestAnimationFrame(() => {
+        zoomImg.style.left = '50%';
+        zoomImg.style.top = '50%';
+        zoomImg.style.transform = 'translate(-50%, -50%) scale(1)';
+        zoomImg.style.width = '';
+        zoomImg.style.height = '';
       });
-
-      gallery.appendChild(img);
     });
+
+    gallery.appendChild(img);
+  });
 }
