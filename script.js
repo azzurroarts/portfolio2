@@ -25,7 +25,6 @@ overlay.addEventListener('click', () => {
 window.addEventListener('DOMContentLoaded', init);
 
 function init() {
-  zoomImg.src = img.dataset.full;
   observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
@@ -63,14 +62,17 @@ function init() {
 }
 
 function csvToArray(str, delimiter = ',') {
-  const lines = str.trim().split('\n');
+  const lines = str.trim().split(/\r?\n/); // ✅ handles both \n and \r\n
+
   const headers = lines[0].split(delimiter).map(h => h.trim());
+
   return lines.slice(1).map(line => {
     const values = line.split(delimiter).map(v => v.trim());
     let obj = {};
     headers.forEach((header, i) => obj[header] = values[i]);
     return obj;
   });
+}
 }
 
 // Render categories & active highlight
