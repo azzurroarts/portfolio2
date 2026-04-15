@@ -165,7 +165,5 @@ function renderGallery(filter, searchQuery = '') {
     });
 
     gallery.appendChild(img);
-    setTimeout(layoutMasonry, 100);
   });
 }
-window.addEventListener("resize", layoutMasonry);
