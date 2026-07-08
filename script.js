@@ -158,12 +158,12 @@ function renderGallery(filter, searchQuery = '') {
 
       // ---------------- STRIPEY ZIGZAG CONCEPT ----------------
 const zoomBg = document.createElement('div');
-zoomBg.className = 'mural-zigzag-bg';
+zoomBg.className = 'zagmelt-bg';
 
 overlay.appendChild(zoomBg);
 overlay.appendChild(zoomImg);
 
-setMuralZoomColours(zoomImg, zoomBg);
+setZagmeltColours(zoomImg, zoomBg);
 
       
       overlay.classList.add('active');
