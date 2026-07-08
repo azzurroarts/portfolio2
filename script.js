@@ -272,7 +272,7 @@ function setZoomColours(img, bgEl) {
         pixel.style.height = pixel.style.width;
         pixel.style.animationDelay = Math.random() * -12 + 's';
         pixel.style.animationDuration = 8 + Math.random() * 14 + 's';
-        pixel.style.opacity = 0.2 + Math.random() * 0.5;
+        pixel.style.opacity = 0.6 + Math.random() * 0.5;
 
         bgEl.appendChild(pixel);
       }
