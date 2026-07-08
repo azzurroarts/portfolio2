@@ -156,16 +156,16 @@ function renderGallery(filter, searchQuery = '') {
       // ---------------- ZOOM MODE ----------------
      overlay.innerHTML = '';
 
-      // ---------------- PAINTSQUISH 2 BACKGROUND ----------------
-const paintBg = document.createElement('div');
-paintBg.className = 'paintsquish-bg';
+      // ---------------- PIXEL CLOUD BACKGROUND ----------------
+const zoomBg = document.createElement('div');
+zoomBg.className = 'zoom-bg';
 
-overlay.appendChild(paintBg);
+overlay.appendChild(zoomBg);
 overlay.appendChild(zoomImg);
 
 overlay.classList.add('active');
 
-setPaintsquishColours(zoomImg, paintBg);
+setZoomColours(zoomImg, zoomBg);
 
       //-------ZOOM ANIMATIONS_______DONT TOUCH
 
@@ -181,43 +181,45 @@ setPaintsquishColours(zoomImg, paintBg);
     gallery.appendChild(img);
   });
 }
-
-// ---------------- PAINTSQUISH 2 ----------------
-function setPaintsquishColours(img, bgEl) {
+// ---------------- PIXEL CLOUD COLOUR BACKGROUND ----------------
+function setZoomColours(img, bgEl) {
   function boostColour(r, g, b) {
     const avg = (r + g + b) / 3;
 
-    r = avg + (r - avg) * 2.1;
-    g = avg + (g - avg) * 2.1;
-    b = avg + (b - avg) * 2.1;
+    r = avg + (r - avg) * 1.8;
+    g = avg + (g - avg) * 1.8;
+    b = avg + (b - avg) * 1.8;
 
     const max = Math.max(r, g, b);
 
-    if (max < 190) {
-      const boost = 190 / Math.max(max, 1);
+    if (max < 185) {
+      const boost = 185 / Math.max(max, 1);
       r *= boost;
       g *= boost;
       b *= boost;
     }
 
-    return `rgb(${Math.min(255, Math.max(80, Math.round(r)))}, ${Math.min(255, Math.max(80, Math.round(g)))}, ${Math.min(255, Math.max(80, Math.round(b)))})`;
+    r = Math.min(255, Math.max(70, Math.round(r)));
+    g = Math.min(255, Math.max(70, Math.round(g)));
+    b = Math.min(255, Math.max(70, Math.round(b)));
+
+    return `rgb(${r}, ${g}, ${b})`;
   }
 
   function sampleColours() {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
 
-    canvas.width = 70;
-    canvas.height = 70;
-
-    let picked = [];
+    canvas.width = 50;
+    canvas.height = 50;
 
     try {
-      ctx.drawImage(img, 0, 0, 70, 70);
-      const data = ctx.getImageData(0, 0, 70, 70).data;
+      ctx.drawImage(img, 0, 0, 50, 50);
+
+      const data = ctx.getImageData(0, 0, 50, 50).data;
       const colours = {};
 
-      for (let i = 0; i < data.length; i += 12) {
+      for (let i = 0; i < data.length; i += 16) {
         const r = data[i];
         const g = data[i + 1];
         const b = data[i + 2];
@@ -227,66 +229,55 @@ function setPaintsquishColours(img, bgEl) {
         const saturation = max - min;
         const brightness = max;
 
-        // reject dark colours
-if (brightness < 95) continue;
+        if (brightness < 95) continue;
+        if (saturation < 45) continue;
+        if (r > 215 && g > 215 && b > 215) continue;
 
-// reject whites / near-whites / greys
-if (saturation < 55) continue;
-if (r > 215 && g > 215 && b > 215) continue;
+        if (
+          r > 180 &&
+          g > 165 &&
+          b > 130 &&
+          saturation < 85
+        ) continue;
 
-// reject beige/off-white sludge
-if (
-  r > 180 &&
-  g > 165 &&
-  b > 130 &&
-  saturation < 85
-) continue;
+        const key = `${Math.round(r / 36) * 36},${Math.round(g / 36) * 36},${Math.round(b / 36) * 36}`;
 
-        const key = `${Math.round(r / 32) * 32},${Math.round(g / 32) * 32},${Math.round(b / 32) * 32}`;
-        colours[key] = (colours[key] || 0) + 1 + saturation / 45 + brightness / 150;
+        colours[key] = (colours[key] || 0) + 1 + saturation / 50 + brightness / 170;
       }
 
-      picked = Object.entries(colours)
+      const topColours = Object.entries(colours)
         .sort((a, b) => b[1] - a[1])
-        .slice(0, 6)
+        .slice(0, 3)
         .map(([colour]) => {
           const [r, g, b] = colour.split(',').map(Number);
           return boostColour(r, g, b);
         });
+
+      const c1 = topColours[0] || 'rgb(255, 90, 200)';
+      const c2 = topColours[1] || 'rgb(90, 220, 255)';
+      const c3 = topColours[2] || 'rgb(255, 225, 80)';
+
+      bgEl.innerHTML = '';
+
+      for (let i = 0; i < 90; i++) {
+        const pixel = document.createElement('span');
+        pixel.className = 'zoom-pixel';
+
+        const colour = [c1, c2, c3][i % 3];
+
+        pixel.style.background = colour;
+        pixel.style.left = Math.random() * 100 + '%';
+        pixel.style.top = Math.random() * 100 + '%';
+        pixel.style.width = 30 + Math.random() * 120 + 'px';
+        pixel.style.height = pixel.style.width;
+        pixel.style.animationDelay = Math.random() * -12 + 's';
+        pixel.style.animationDuration = 8 + Math.random() * 14 + 's';
+        pixel.style.opacity = 0.2 + Math.random() * 0.5;
+
+        bgEl.appendChild(pixel);
+      }
     } catch (err) {
-      picked = [];
-    }
-
-    const fallback = [
-      'rgb(255, 64, 180)',
-      'rgb(70, 220, 255)',
-      'rgb(255, 225, 70)',
-      'rgb(90, 255, 150)',
-      'rgb(255, 120, 60)',
-      'rgb(170, 110, 255)'
-    ];
-
-    const palette = [...picked, ...fallback].slice(0, 6);
-
-    bgEl.innerHTML = '';
-
-  for (let i = 0; i < 62; i++) {
-      const blob = document.createElement('span');
-      blob.className = 'paintsquish-blob';
-
-      const colour = palette[i % palette.length];
-      const size = 140 + Math.random() * 430;
-
-      blob.style.background = colour;
-      blob.style.width = size + 'px';
-      blob.style.height = size * (0.75 + Math.random() * 0.55) + 'px';
-      blob.style.left = Math.random() * 100 + '%';
-      blob.style.top = Math.random() * 100 + '%';
-      blob.style.animationDelay = Math.random() * -18 + 's';
-      blob.style.animationDuration = 10 + Math.random() * 16 + 's';
-     blob.style.opacity = 0.66 + Math.random() * 0.35;
-
-      bgEl.appendChild(blob);
+      bgEl.innerHTML = '';
     }
   }
 
@@ -296,3 +287,4 @@ if (
     img.onload = sampleColours;
   }
 }
+
