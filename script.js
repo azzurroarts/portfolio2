@@ -62,10 +62,13 @@ function init() {
 
   const searchInput = document.getElementById('search');
 
-  searchInput.addEventListener('input', (e) => {
-    const query = e.target.value.trim().toLowerCase();
-    renderGallery(currentCategory, query);
-  });
+ searchInput.addEventListener('input', (e) => {
+  currentCategory = 'All';
+  renderCategories();
+
+  const query = e.target.value.trim().toLowerCase();
+  renderGallery('All', query);
+});
 }
 
 // ---------------- CSV ----------------
@@ -99,10 +102,14 @@ function renderCategories() {
     if (cat === currentCategory) btn.classList.add('active');
 
     btn.addEventListener('click', () => {
-      currentCategory = cat;
-      renderCategories();
-      renderGallery(cat);
-    });
+  currentCategory = cat;
+
+  const searchInput = document.getElementById('search');
+  searchInput.value = '';
+
+  renderCategories();
+  renderGallery(cat);
+});
 
     container.appendChild(btn);
   });
