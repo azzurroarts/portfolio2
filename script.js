@@ -181,48 +181,54 @@ setMuralZoomColours(zoomImg, zoomBg);
   });
 }
 
-// ---------------- MURAL ZIGZAG COLOUR BACKGROUND ----------------
-function setMuralZoomColours(img, bgEl) {
+// ---------------- ZAGMELT COLOUR BACKGROUND ----------------
+function setZagmeltColours(img, bgEl) {
   function sampleColours() {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
 
-    canvas.width = 40;
-    canvas.height = 40;
+    canvas.width = 60;
+    canvas.height = 60;
 
     try {
-      ctx.drawImage(img, 0, 0, 40, 40);
+      ctx.drawImage(img, 0, 0, 60, 60);
 
-      const data = ctx.getImageData(0, 0, 40, 40).data;
+      const data = ctx.getImageData(0, 0, 60, 60).data;
       const colours = {};
 
-      for (let i = 0; i < data.length; i += 16) {
+      for (let i = 0; i < data.length; i += 12) {
         const r = data[i];
         const g = data[i + 1];
         const b = data[i + 2];
 
-        if (r + g + b > 720 || r + g + b < 80) continue;
+        if (r + g + b > 735 || r + g + b < 55) continue;
 
-        const key = `${Math.round(r / 40) * 40},${Math.round(g / 40) * 40},${Math.round(b / 40) * 40}`;
+        const key = `${Math.round(r / 32) * 32},${Math.round(g / 32) * 32},${Math.round(b / 32) * 32}`;
         colours[key] = (colours[key] || 0) + 1;
       }
 
       const topColours = Object.entries(colours)
         .sort((a, b) => b[1] - a[1])
-        .slice(0, 3)
+        .slice(0, 6)
         .map(([colour]) => `rgb(${colour})`);
 
-      const c1 = topColours[0] || '#ff4dd2';
-      const c2 = topColours[1] || '#4de2ff';
-      const c3 = topColours[2] || '#ffdd55';
+      const fallback = ['#ff4dd2', '#4de2ff', '#ffdd55', '#5eff9b', '#ff8833', '#7c5cff'];
 
-      bgEl.style.setProperty('--mural-c1', c1);
-      bgEl.style.setProperty('--mural-c2', c2);
-      bgEl.style.setProperty('--mural-c3', c3);
+      const c = [...topColours, ...fallback].slice(0, 6);
+
+      bgEl.style.setProperty('--zag1', c[0]);
+      bgEl.style.setProperty('--zag2', c[1]);
+      bgEl.style.setProperty('--zag3', c[2]);
+      bgEl.style.setProperty('--zag4', c[3]);
+      bgEl.style.setProperty('--zag5', c[4]);
+      bgEl.style.setProperty('--zag6', c[5]);
     } catch (err) {
-      bgEl.style.setProperty('--mural-c1', '#ff4dd2');
-      bgEl.style.setProperty('--mural-c2', '#4de2ff');
-      bgEl.style.setProperty('--mural-c3', '#ffdd55');
+      bgEl.style.setProperty('--zag1', '#ff4dd2');
+      bgEl.style.setProperty('--zag2', '#4de2ff');
+      bgEl.style.setProperty('--zag3', '#ffdd55');
+      bgEl.style.setProperty('--zag4', '#5eff9b');
+      bgEl.style.setProperty('--zag5', '#ff8833');
+      bgEl.style.setProperty('--zag6', '#7c5cff');
     }
   }
 
