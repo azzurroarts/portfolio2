@@ -298,56 +298,45 @@ body {
     align-self: flex-start !important;
   }
 }
+/* ---------------- PIXEL CLOUD ZOOM BACKGROUND ---------------- */
 
-/* ---------------- PAINTSQUISH 2 MURAL BACKGROUND ---------------- */
-
-.paintsquish-bg {
+.zoom-bg {
   position: fixed;
   inset: 0;
   z-index: -1;
   overflow: hidden;
-  background: linear-gradient(135deg, #ff40b4, #46dcff, #ffe146, #5aff96);
+  background: #111;
 }
 
-.paintsquish-blob {
+.zoom-pixel {
   position: absolute;
   display: block;
-  border-radius: 42% 58% 65% 35% / 48% 38% 62% 52%;
-  filter: blur(10px) saturate(2.6) contrast(1.45);
-  mix-blend-mode: hard-light;
-  transform: translate(-50%, -50%);
-  animation: paintsquishBlobMove 6s cubic-bezier(.45,0,.2,1) infinite alternate;
-  box-shadow:
-    inset 18px 18px 34px rgba(255,255,255,0.35),
-    inset -22px -24px 38px rgba(0,0,0,0.28),
-    0 0 18px currentColor;
+  border-radius: 0;
+  filter: blur(18px) saturate(1.8);
+  mix-blend-mode: screen;
+  animation: zoomPixelCloud 12s ease-in-out infinite alternate;
 }
 
-@keyframes paintsquishBlobMove {
+@keyframes zoomPixelCloud {
   0% {
-    transform: translate(-50%, -50%) scale(1) rotate(0deg);
-    border-radius: 42% 58% 65% 35% / 48% 38% 62% 52%;
+    transform: translate(0, 0) scale(1) rotate(0deg);
   }
 
-  25% {
-    transform: translate(calc(-50% + 140px), calc(-50% - 100px)) scale(1.25) rotate(14deg);
-    border-radius: 68% 32% 44% 56% / 35% 70% 38% 65%;
-  }
-
-  55% {
-    transform: translate(calc(-50% - 130px), calc(-50% + 120px)) scale(0.85) rotate(-18deg);
-    border-radius: 35% 65% 75% 25% / 62% 32% 70% 38%;
+  50% {
+    transform: translate(80px, -50px) scale(1.4) rotate(12deg);
   }
 
   100% {
-    transform: translate(calc(-50% + 90px), calc(-50% + 70px)) scale(1.18) rotate(10deg);
-    border-radius: 60% 40% 32% 68% / 42% 58% 35% 65%;
+    transform: translate(-60px, 70px) scale(0.9) rotate(-8deg);
   }
 }
 
 @media (max-width: 768px) {
-  .paintsquish-blob {
-    filter: blur(7px) saturate(2.8) contrast(1.6);
-    animation-duration: 3.8s !important;
+  .zoom-pixel {
+    filter: blur(14px) saturate(2.2);
+    animation-duration: 5s !important;
+    opacity: 0.65 !important;
   }
 }
+
+
