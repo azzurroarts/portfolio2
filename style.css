@@ -298,102 +298,51 @@ body {
     align-self: flex-start !important;
   }
 }
-// ---------------- PAINTSQUISH COLOUR BACKGROUND ----------------
-function setPaintsquishColours(img, bgEl) {
-  function boostColour(r, g, b) {
-    let max = Math.max(r, g, b);
-    let min = Math.min(r, g, b);
+/* ---------------- PAINTSQUISH 2 MURAL BACKGROUND ---------------- */
 
-    // brighten weak/dull colours
-    if (max < 180) {
-      const boost = 180 / Math.max(max, 1);
-      r *= boost;
-      g *= boost;
-      b *= boost;
-    }
+.paintsquish-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  background: linear-gradient(135deg, #ff40b4, #46dcff, #ffe146, #5aff96);
+}
 
-    // increase saturation by pushing away from grey average
-    const avg = (r + g + b) / 3;
-    r = avg + (r - avg) * 1.9;
-    g = avg + (g - avg) * 1.9;
-    b = avg + (b - avg) * 1.9;
+.paintsquish-blob {
+  position: absolute;
+  display: block;
+  border-radius: 45% 55% 62% 38% / 50% 42% 58% 50%;
+  filter: blur(38px) saturate(2.2) contrast(1.1);
+  mix-blend-mode: screen;
+  transform: translate(-50%, -50%);
+  animation: paintsquishBlobMove 16s ease-in-out infinite alternate;
+}
 
-    r = Math.max(45, Math.min(255, Math.round(r)));
-    g = Math.max(45, Math.min(255, Math.round(g)));
-    b = Math.max(45, Math.min(255, Math.round(b)));
-
-    return `rgb(${r}, ${g}, ${b})`;
+@keyframes paintsquishBlobMove {
+  0% {
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+    border-radius: 45% 55% 62% 38% / 50% 42% 58% 50%;
   }
 
-  function sampleColours() {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-
-    canvas.width = 70;
-    canvas.height = 70;
-
-    try {
-      ctx.drawImage(img, 0, 0, 70, 70);
-
-      const data = ctx.getImageData(0, 0, 70, 70).data;
-      const colours = {};
-
-      for (let i = 0; i < data.length; i += 12) {
-        let r = data[i];
-        let g = data[i + 1];
-        let b = data[i + 2];
-
-        const max = Math.max(r, g, b);
-        const min = Math.min(r, g, b);
-        const saturation = max - min;
-        const brightness = max;
-
-        // skip black/grey/brown/dead sludge
-        if (brightness < 55) continue;
-        if (saturation < 18) continue;
-        if (r > g * 1.15 && g > b * 1.15 && brightness < 170) continue;
-
-        const key = `${Math.round(r / 28) * 28},${Math.round(g / 28) * 28},${Math.round(b / 28) * 28}`;
-
-        // weight vivid colours harder
-        colours[key] = (colours[key] || 0) + 1 + saturation / 45 + brightness / 140;
-      }
-
-      const picked = Object.entries(colours)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 5)
-        .map(([colour]) => {
-          const [r, g, b] = colour.split(',').map(Number);
-          return boostColour(r, g, b);
-        });
-
-      const fallback = [
-        'rgb(255, 64, 190)',
-        'rgb(70, 220, 255)',
-        'rgb(255, 225, 70)',
-        'rgb(90, 255, 160)',
-        'rgb(255, 125, 60)'
-      ];
-
-      const c = [...picked, ...fallback].slice(0, 5);
-
-      bgEl.style.setProperty('--squish1', c[0]);
-      bgEl.style.setProperty('--squish2', c[1]);
-      bgEl.style.setProperty('--squish3', c[2]);
-      bgEl.style.setProperty('--squish4', c[3]);
-      bgEl.style.setProperty('--squish5', c[4]);
-    } catch (err) {
-      bgEl.style.setProperty('--squish1', 'rgb(255, 64, 190)');
-      bgEl.style.setProperty('--squish2', 'rgb(70, 220, 255)');
-      bgEl.style.setProperty('--squish3', 'rgb(255, 225, 70)');
-      bgEl.style.setProperty('--squish4', 'rgb(90, 255, 160)');
-      bgEl.style.setProperty('--squish5', 'rgb(255, 125, 60)');
-    }
+  35% {
+    transform: translate(calc(-50% + 90px), calc(-50% - 70px)) scale(1.25) rotate(9deg);
+    border-radius: 62% 38% 42% 58% / 35% 65% 45% 55%;
   }
 
-  if (img.complete) {
-    sampleColours();
-  } else {
-    img.onload = sampleColours;
+  70% {
+    transform: translate(calc(-50% - 80px), calc(-50% + 100px)) scale(0.9) rotate(-12deg);
+    border-radius: 38% 62% 70% 30% / 60% 35% 65% 40%;
+  }
+
+  100% {
+    transform: translate(calc(-50% + 60px), calc(-50% + 30px)) scale(1.15) rotate(6deg);
+    border-radius: 55% 45% 35% 65% / 45% 55% 40% 60%;
+  }
+}
+
+@media (max-width: 768px) {
+  .paintsquish-blob {
+    filter: blur(26px) saturate(2.4) contrast(1.2);
+    animation-duration: 7s !important;
   }
 }
