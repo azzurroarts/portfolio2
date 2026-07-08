@@ -227,8 +227,20 @@ function setPaintsquishColours(img, bgEl) {
         const saturation = max - min;
         const brightness = max;
 
-        if (brightness < 75) continue;
-        if (saturation < 30) continue;
+        // reject dark colours
+if (brightness < 95) continue;
+
+// reject whites / near-whites / greys
+if (saturation < 55) continue;
+if (r > 215 && g > 215 && b > 215) continue;
+
+// reject beige/off-white sludge
+if (
+  r > 180 &&
+  g > 165 &&
+  b > 130 &&
+  saturation < 85
+) continue;
 
         const key = `${Math.round(r / 32) * 32},${Math.round(g / 32) * 32},${Math.round(b / 32) * 32}`;
         colours[key] = (colours[key] || 0) + 1 + saturation / 45 + brightness / 150;
@@ -258,12 +270,12 @@ function setPaintsquishColours(img, bgEl) {
 
     bgEl.innerHTML = '';
 
-    for (let i = 0; i < 46; i++) {
+  for (let i = 0; i < 62; i++) {
       const blob = document.createElement('span');
       blob.className = 'paintsquish-blob';
 
       const colour = palette[i % palette.length];
-      const size = 180 + Math.random() * 520;
+      const size = 140 + Math.random() * 430;
 
       blob.style.background = colour;
       blob.style.width = size + 'px';
@@ -272,7 +284,7 @@ function setPaintsquishColours(img, bgEl) {
       blob.style.top = Math.random() * 100 + '%';
       blob.style.animationDelay = Math.random() * -18 + 's';
       blob.style.animationDuration = 10 + Math.random() * 16 + 's';
-      blob.style.opacity = 0.35 + Math.random() * 0.4;
+     blob.style.opacity = 0.66 + Math.random() * 0.35;
 
       bgEl.appendChild(blob);
     }
