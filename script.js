@@ -153,8 +153,19 @@ function renderGallery(filter, searchQuery = '') {
       zoomImg.style.height = rect.height + 'px';
       zoomImg.style.transition = 'all 0.35s ease';
 
-      overlay.innerHTML = '';
-      overlay.appendChild(zoomImg);
+      // ---------------- ZOOM MODE ----------------
+     overlay.innerHTML = '';
+
+      // ---------------- STRIPEY ZIGZAG CONCEPT ----------------
+const zoomBg = document.createElement('div');
+zoomBg.className = 'mural-zigzag-bg';
+
+overlay.appendChild(zoomBg);
+overlay.appendChild(zoomImg);
+
+setMuralZoomColours(zoomImg, zoomBg);
+
+      
       overlay.classList.add('active');
 
       requestAnimationFrame(() => {
@@ -168,4 +179,56 @@ function renderGallery(filter, searchQuery = '') {
 
     gallery.appendChild(img);
   });
+}
+
+// ---------------- MURAL ZIGZAG COLOUR BACKGROUND ----------------
+function setMuralZoomColours(img, bgEl) {
+  function sampleColours() {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = 40;
+    canvas.height = 40;
+
+    try {
+      ctx.drawImage(img, 0, 0, 40, 40);
+
+      const data = ctx.getImageData(0, 0, 40, 40).data;
+      const colours = {};
+
+      for (let i = 0; i < data.length; i += 16) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+
+        if (r + g + b > 720 || r + g + b < 80) continue;
+
+        const key = `${Math.round(r / 40) * 40},${Math.round(g / 40) * 40},${Math.round(b / 40) * 40}`;
+        colours[key] = (colours[key] || 0) + 1;
+      }
+
+      const topColours = Object.entries(colours)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3)
+        .map(([colour]) => `rgb(${colour})`);
+
+      const c1 = topColours[0] || '#ff4dd2';
+      const c2 = topColours[1] || '#4de2ff';
+      const c3 = topColours[2] || '#ffdd55';
+
+      bgEl.style.setProperty('--mural-c1', c1);
+      bgEl.style.setProperty('--mural-c2', c2);
+      bgEl.style.setProperty('--mural-c3', c3);
+    } catch (err) {
+      bgEl.style.setProperty('--mural-c1', '#ff4dd2');
+      bgEl.style.setProperty('--mural-c2', '#4de2ff');
+      bgEl.style.setProperty('--mural-c3', '#ffdd55');
+    }
+  }
+
+  if (img.complete) {
+    sampleColours();
+  } else {
+    img.onload = sampleColours;
+  }
 }
