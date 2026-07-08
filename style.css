@@ -298,3 +298,50 @@ body {
     align-self: flex-start !important;
   }
 }
+/* ---------------- MURAL ZIGZAG ZOOM BACKGROUND ---------------- */
+
+.mural-zigzag-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.78;
+
+  background:
+    linear-gradient(135deg, var(--mural-c1, #ff4dd2) 25%, transparent 25%) 0 0 / 46px 46px,
+    linear-gradient(225deg, var(--mural-c2, #4de2ff) 25%, transparent 25%) 0 0 / 46px 46px,
+    linear-gradient(315deg, var(--mural-c3, #ffdd55) 25%, transparent 25%) 23px 23px / 46px 46px,
+    linear-gradient(45deg, var(--mural-c1, #ff4dd2) 25%, #111 25%) 23px 23px / 46px 46px;
+
+  animation: muralZigzagSlide 2.8s linear infinite;
+  filter: saturate(1.55) contrast(1.15);
+}
+
+@keyframes muralZigzagSlide {
+  from {
+    background-position:
+      0 0,
+      0 0,
+      23px 23px,
+      23px 23px;
+  }
+
+  to {
+    background-position:
+      46px 46px,
+      -46px 46px,
+      69px 69px,
+      -23px 69px;
+  }
+}
+
+@media (max-width: 768px) {
+  .mural-zigzag-bg {
+    opacity: 0.85;
+    background-size:
+      34px 34px,
+      34px 34px,
+      34px 34px,
+      34px 34px;
+    animation-duration: 1.6s;
+  }
+}
