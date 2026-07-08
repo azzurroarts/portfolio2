@@ -165,7 +165,7 @@ overlay.appendChild(zoomImg);
 
       overlay.classList.add('active');
 
-      
+      setPaintsquishColours(zoomImg, paintBg);
 
       //-------ZOOM ANIMATIONS_______DONT TOUCH
 
