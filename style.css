@@ -298,173 +298,102 @@ body {
     align-self: flex-start !important;
   }
 }
-/* ---------------- ZAGMELT MURAL ZOOM BACKGROUND ---------------- */
+// ---------------- PAINTSQUISH COLOUR BACKGROUND ----------------
+function setPaintsquishColours(img, bgEl) {
+  function boostColour(r, g, b) {
+    let max = Math.max(r, g, b);
+    let min = Math.min(r, g, b);
 
-.zagmelt-bg {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  opacity: 0.9;
-  overflow: hidden;
+    // brighten weak/dull colours
+    if (max < 180) {
+      const boost = 180 / Math.max(max, 1);
+      r *= boost;
+      g *= boost;
+      b *= boost;
+    }
 
-  background:
-    radial-gradient(circle at 12% 22%, var(--zag1, #ff4dd2) 0 8%, transparent 24%),
-    radial-gradient(circle at 82% 18%, var(--zag2, #4de2ff) 0 10%, transparent 28%),
-    radial-gradient(circle at 24% 78%, var(--zag3, #ffdd55) 0 12%, transparent 30%),
-    radial-gradient(circle at 76% 76%, var(--zag4, #5eff9b) 0 10%, transparent 28%),
-    radial-gradient(circle at 50% 48%, var(--zag5, #ff8833) 0 14%, transparent 32%),
-    linear-gradient(
-      135deg,
-      var(--zag1, #ff4dd2),
-      var(--zag2, #4de2ff),
-      var(--zag3, #ffdd55),
-      var(--zag4, #5eff9b),
-      var(--zag5, #ff8833),
-      var(--zag6, #7c5cff)
-    );
+    // increase saturation by pushing away from grey average
+    const avg = (r + g + b) / 3;
+    r = avg + (r - avg) * 1.9;
+    g = avg + (g - avg) * 1.9;
+    b = avg + (b - avg) * 1.9;
 
-  background-size:
-    140% 140%,
-    150% 150%,
-    160% 160%,
-    150% 150%,
-    180% 180%,
-    300% 300%;
+    r = Math.max(45, Math.min(255, Math.round(r)));
+    g = Math.max(45, Math.min(255, Math.round(g)));
+    b = Math.max(45, Math.min(255, Math.round(b)));
 
-  clip-path: polygon(
-    0% 0%,
-    8% 12%,
-    16% 0%,
-    24% 14%,
-    32% 0%,
-    40% 12%,
-    48% 0%,
-    56% 14%,
-    64% 0%,
-    72% 12%,
-    80% 0%,
-    88% 14%,
-    100% 0%,
-    100% 100%,
-    92% 88%,
-    84% 100%,
-    76% 86%,
-    68% 100%,
-    60% 88%,
-    52% 100%,
-    44% 86%,
-    36% 100%,
-    28% 88%,
-    20% 100%,
-    12% 86%,
-    0% 100%
-  );
-
-  filter: saturate(1.65) contrast(1.15);
-  animation: zagmeltFlow 7s ease-in-out infinite alternate;
-}
-
-.zagmelt-bg::before {
-  content: "";
-  position: absolute;
-  inset: -20%;
-  background:
-    conic-gradient(
-      from 90deg,
-      var(--zag1, #ff4dd2),
-      var(--zag2, #4de2ff),
-      var(--zag3, #ffdd55),
-      var(--zag4, #5eff9b),
-      var(--zag5, #ff8833),
-      var(--zag6, #7c5cff),
-      var(--zag1, #ff4dd2)
-    );
-  opacity: 0.55;
-  mix-blend-mode: screen;
-  filter: blur(24px);
-  animation: zagmeltSpin 14s linear infinite;
-}
-
-.zagmelt-bg::after {
-  content: "";
-  position: absolute;
-  inset: -10%;
-  background:
-    linear-gradient(
-      115deg,
-      transparent 0%,
-      var(--zag1, #ff4dd2) 12%,
-      transparent 24%,
-      var(--zag3, #ffdd55) 36%,
-      transparent 48%,
-      var(--zag5, #ff8833) 60%,
-      transparent 72%,
-      var(--zag2, #4de2ff) 84%,
-      transparent 100%
-    );
-  opacity: 0.45;
-  mix-blend-mode: overlay;
-  filter: blur(18px);
-  animation: zagmeltSlide 5s ease-in-out infinite alternate;
-}
-
-@keyframes zagmeltFlow {
-  0% {
-    background-position:
-      0% 0%,
-      100% 0%,
-      0% 100%,
-      100% 100%,
-      50% 50%,
-      0% 50%;
-    transform: scale(1) skewX(0deg);
+    return `rgb(${r}, ${g}, ${b})`;
   }
 
-  100% {
-    background-position:
-      80% 40%,
-      20% 80%,
-      90% 20%,
-      10% 60%,
-      70% 90%,
-      100% 50%;
-    transform: scale(1.08) skewX(-3deg);
-  }
-}
+  function sampleColours() {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
 
-@keyframes zagmeltSpin {
-  from {
-    transform: rotate(0deg) scale(1);
+    canvas.width = 70;
+    canvas.height = 70;
+
+    try {
+      ctx.drawImage(img, 0, 0, 70, 70);
+
+      const data = ctx.getImageData(0, 0, 70, 70).data;
+      const colours = {};
+
+      for (let i = 0; i < data.length; i += 12) {
+        let r = data[i];
+        let g = data[i + 1];
+        let b = data[i + 2];
+
+        const max = Math.max(r, g, b);
+        const min = Math.min(r, g, b);
+        const saturation = max - min;
+        const brightness = max;
+
+        // skip black/grey/brown/dead sludge
+        if (brightness < 55) continue;
+        if (saturation < 18) continue;
+        if (r > g * 1.15 && g > b * 1.15 && brightness < 170) continue;
+
+        const key = `${Math.round(r / 28) * 28},${Math.round(g / 28) * 28},${Math.round(b / 28) * 28}`;
+
+        // weight vivid colours harder
+        colours[key] = (colours[key] || 0) + 1 + saturation / 45 + brightness / 140;
+      }
+
+      const picked = Object.entries(colours)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([colour]) => {
+          const [r, g, b] = colour.split(',').map(Number);
+          return boostColour(r, g, b);
+        });
+
+      const fallback = [
+        'rgb(255, 64, 190)',
+        'rgb(70, 220, 255)',
+        'rgb(255, 225, 70)',
+        'rgb(90, 255, 160)',
+        'rgb(255, 125, 60)'
+      ];
+
+      const c = [...picked, ...fallback].slice(0, 5);
+
+      bgEl.style.setProperty('--squish1', c[0]);
+      bgEl.style.setProperty('--squish2', c[1]);
+      bgEl.style.setProperty('--squish3', c[2]);
+      bgEl.style.setProperty('--squish4', c[3]);
+      bgEl.style.setProperty('--squish5', c[4]);
+    } catch (err) {
+      bgEl.style.setProperty('--squish1', 'rgb(255, 64, 190)');
+      bgEl.style.setProperty('--squish2', 'rgb(70, 220, 255)');
+      bgEl.style.setProperty('--squish3', 'rgb(255, 225, 70)');
+      bgEl.style.setProperty('--squish4', 'rgb(90, 255, 160)');
+      bgEl.style.setProperty('--squish5', 'rgb(255, 125, 60)');
+    }
   }
 
-  to {
-    transform: rotate(360deg) scale(1.15);
-  }
-}
-
-@keyframes zagmeltSlide {
-  from {
-    transform: translateX(-8%) rotate(-4deg);
-  }
-
-  to {
-    transform: translateX(8%) rotate(4deg);
-  }
-}
-
-@media (max-width: 768px) {
-  .zagmelt-bg {
-    animation-duration: 4s;
-    opacity: 0.95;
-  }
-
-  .zagmelt-bg::before {
-    animation-duration: 8s;
-    filter: blur(18px);
-  }
-
-  .zagmelt-bg::after {
-    animation-duration: 3s;
-    opacity: 0.6;
+  if (img.complete) {
+    sampleColours();
+  } else {
+    img.onload = sampleColours;
   }
 }
