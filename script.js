@@ -156,16 +156,16 @@ function renderGallery(filter, searchQuery = '') {
       // ---------------- ZOOM MODE ----------------
      overlay.innerHTML = '';
 
-      // ---------------- STRIPEY ZIGZAG CONCEPT ----------------
-const zoomBg = document.createElement('div');
+      // ---------------- PAINTSQUISH 2 BACKGROUND ----------------
+const paintBg = document.createElement('div');
 paintBg.className = 'paintsquish-bg';
 
 overlay.appendChild(paintBg);
 overlay.appendChild(zoomImg);
 
-      overlay.classList.add('active');
+overlay.classList.add('active');
 
-      setPaintsquishColours(zoomImg, paintBg);
+setPaintsquishColours(zoomImg, paintBg);
 
       //-------ZOOM ANIMATIONS_______DONT TOUCH
 
