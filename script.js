@@ -158,12 +158,12 @@ function renderGallery(filter, searchQuery = '') {
 
       // ---------------- STRIPEY ZIGZAG CONCEPT ----------------
 const zoomBg = document.createElement('div');
-zoomBg.className = 'zagmelt-bg';
+zoomBg.className = 'paintsquish-bg';
 
 overlay.appendChild(zoomBg);
 overlay.appendChild(zoomImg);
 
-setZagmeltColours(zoomImg, zoomBg);
+setPaintsquishColours(zoomImg, zoomBg);
 
       
       overlay.classList.add('active');
@@ -181,54 +181,96 @@ setZagmeltColours(zoomImg, zoomBg);
   });
 }
 
-// ---------------- ZAGMELT COLOUR BACKGROUND ----------------
-function setZagmeltColours(img, bgEl) {
+// ---------------- PAINTSQUISH COLOUR BACKGROUND ----------------
+function setPaintsquishColours(img, bgEl) {
+  function boostColour(r, g, b) {
+    let max = Math.max(r, g, b);
+    let min = Math.min(r, g, b);
+
+    // brighten weak/dull colours
+    if (max < 180) {
+      const boost = 180 / Math.max(max, 1);
+      r *= boost;
+      g *= boost;
+      b *= boost;
+    }
+
+    // increase saturation by pushing away from grey average
+    const avg = (r + g + b) / 3;
+    r = avg + (r - avg) * 1.9;
+    g = avg + (g - avg) * 1.9;
+    b = avg + (b - avg) * 1.9;
+
+    r = Math.max(45, Math.min(255, Math.round(r)));
+    g = Math.max(45, Math.min(255, Math.round(g)));
+    b = Math.max(45, Math.min(255, Math.round(b)));
+
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+
   function sampleColours() {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
 
-    canvas.width = 60;
-    canvas.height = 60;
+    canvas.width = 70;
+    canvas.height = 70;
 
     try {
-      ctx.drawImage(img, 0, 0, 60, 60);
+      ctx.drawImage(img, 0, 0, 70, 70);
 
-      const data = ctx.getImageData(0, 0, 60, 60).data;
+      const data = ctx.getImageData(0, 0, 70, 70).data;
       const colours = {};
 
       for (let i = 0; i < data.length; i += 12) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
+        let r = data[i];
+        let g = data[i + 1];
+        let b = data[i + 2];
 
-        if (r + g + b > 735 || r + g + b < 55) continue;
+        const max = Math.max(r, g, b);
+        const min = Math.min(r, g, b);
+        const saturation = max - min;
+        const brightness = max;
 
-        const key = `${Math.round(r / 32) * 32},${Math.round(g / 32) * 32},${Math.round(b / 32) * 32}`;
-        colours[key] = (colours[key] || 0) + 1;
+        // skip black/grey/brown/dead sludge
+        if (brightness < 55) continue;
+        if (saturation < 18) continue;
+        if (r > g * 1.15 && g > b * 1.15 && brightness < 170) continue;
+
+        const key = `${Math.round(r / 28) * 28},${Math.round(g / 28) * 28},${Math.round(b / 28) * 28}`;
+
+        // weight vivid colours harder
+        colours[key] = (colours[key] || 0) + 1 + saturation / 45 + brightness / 140;
       }
 
-      const topColours = Object.entries(colours)
+      const picked = Object.entries(colours)
         .sort((a, b) => b[1] - a[1])
-        .slice(0, 6)
-        .map(([colour]) => `rgb(${colour})`);
+        .slice(0, 5)
+        .map(([colour]) => {
+          const [r, g, b] = colour.split(',').map(Number);
+          return boostColour(r, g, b);
+        });
 
-      const fallback = ['#ff4dd2', '#4de2ff', '#ffdd55', '#5eff9b', '#ff8833', '#7c5cff'];
+      const fallback = [
+        'rgb(255, 64, 190)',
+        'rgb(70, 220, 255)',
+        'rgb(255, 225, 70)',
+        'rgb(90, 255, 160)',
+        'rgb(255, 125, 60)'
+      ];
 
-      const c = [...topColours, ...fallback].slice(0, 6);
+      const c = [...picked, ...fallback].slice(0, 5);
 
-      bgEl.style.setProperty('--zag1', c[0]);
-      bgEl.style.setProperty('--zag2', c[1]);
-      bgEl.style.setProperty('--zag3', c[2]);
-      bgEl.style.setProperty('--zag4', c[3]);
-      bgEl.style.setProperty('--zag5', c[4]);
-      bgEl.style.setProperty('--zag6', c[5]);
+      bgEl.style.setProperty('--squish1', c[0]);
+      bgEl.style.setProperty('--squish2', c[1]);
+      bgEl.style.setProperty('--squish3', c[2]);
+      bgEl.style.setProperty('--squish4', c[3]);
+      bgEl.style.setProperty('--squish5', c[4]);
     } catch (err) {
-      bgEl.style.setProperty('--zag1', '#ff4dd2');
-      bgEl.style.setProperty('--zag2', '#4de2ff');
-      bgEl.style.setProperty('--zag3', '#ffdd55');
-      bgEl.style.setProperty('--zag4', '#5eff9b');
-      bgEl.style.setProperty('--zag5', '#ff8833');
-      bgEl.style.setProperty('--zag6', '#7c5cff');
+      bgEl.style.setProperty('--squish1', 'rgb(255, 64, 190)');
+      bgEl.style.setProperty('--squish2', 'rgb(70, 220, 255)');
+      bgEl.style.setProperty('--squish3', 'rgb(255, 225, 70)');
+      bgEl.style.setProperty('--squish4', 'rgb(90, 255, 160)');
+      bgEl.style.setProperty('--squish5', 'rgb(255, 125, 60)');
     }
   }
 
